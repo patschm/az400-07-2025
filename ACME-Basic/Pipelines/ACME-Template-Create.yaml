@@ -1,0 +1,29 @@
+parameters:
+  - name: serviceLink
+    type: string
+    
+steps:
+- checkout: none
+- download: current
+  artifact: drop
+- task: AzureCLI@2
+  displayName: 'Create Resource Group'
+  inputs:
+    azureSubscription: $(serviceLink)
+    scriptType: 'batch'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az group create --name $(Group) --location $(Region) 
+- task: AzureResourceManagerTemplateDeployment@3
+  displayName: 'Deploy ARM Template for Web App with Slots'
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: ${{ parameters.serviceLink }}
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: $(Group)
+    location: $(Region)
+    templateLocation: 'Linked artifact'
+    csmFile: '$(Pipeline.Workspace)/drop/Biceps/webapp-with-slots.bicep'
+    overrideParameters: '-app_name $(AppName)'
+    deploymentMode: 'Incremental'
+

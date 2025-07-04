@@ -1,0 +1,96 @@
+trigger:
+- master
+
+pool: default
+
+variables:
+  - group: 'ACME-Basic'
+  - name: serviceLink
+    value: 'Private Azure'
+
+stages:
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Job'
+        variables:
+          solution: '**/*.sln'
+          testProjects: '**/*[Tt]ests*/*.csproj'
+          buildPlatform: 'Any CPU'
+          buildConfiguration: 'Release'
+        steps:          
+        - template: ACME-Template-Build.yaml
+  - stage: CreateResources
+    displayName: 'Create Resources if not exists Stage'
+    dependsOn: Build
+    jobs:
+      - job: CreateResourcesJob
+        displayName: 'Create Resources Job'
+        steps:
+        - template: ACME-Template-Create.yaml
+          parameters:
+            serviceLink: $(serviceLink)
+  - stage: Development
+    dependsOn: CreateResources
+    displayName: 'Deploy to Development Stage'
+    jobs:
+      - deployment: development
+        displayName: 'Development Deployment'
+        environment: 'Development'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - template: ACME-Template-Deploy.yaml
+                parameters:
+                  serviceLink: $(serviceLink)
+                  slotName: 'development'
+  - stage: Test
+    dependsOn: Development
+    displayName: 'Deploy to Test Stage'
+    jobs:
+      - deployment: test
+        displayName: 'Swap to Test'
+        environment: 'Test'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - template: ACME-Template-Swap.yaml
+                parameters:
+                  serviceLink: $(serviceLink)
+                  sourceSlot: 'development'
+                  targetSlot: 'testing'  
+  - stage: Staging
+    dependsOn: Test
+    displayName: 'Deploy to Staging Stage'
+    jobs:
+      - deployment: staging
+        displayName: 'Swap to Staging'
+        environment: 'Staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - template: ACME-Template-Swap.yaml
+                parameters:
+                  serviceLink: $(serviceLink)
+                  sourceSlot: 'testing'
+                  targetSlot: 'staging'
+  - stage: Production
+    dependsOn: Staging
+    displayName: 'Deploy to Production Stage'
+    jobs:
+      - deployment: production
+        displayName: 'Swap to Production'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - template: ACME-Template-Swap.yaml
+                parameters:
+                  serviceLink: $(serviceLink)
+                  sourceSlot: 'staging'
+                  targetSlot: 'production'  

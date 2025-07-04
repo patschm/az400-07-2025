@@ -1,0 +1,19 @@
+schedules:
+  - cron: "*/1 * * * *"  # mm HH DD MM DW
+    displayName: Every minute
+    branches:
+      include:
+        - master
+    always: true
+  
+pool:
+  name: Default
+
+variables:
+  major: 1
+  minor: $[ counter(variables['major'], 100) ]
+    
+jobs:
+  - job: hello
+    steps:
+      - script: echo Hello World $(major).$(minor)

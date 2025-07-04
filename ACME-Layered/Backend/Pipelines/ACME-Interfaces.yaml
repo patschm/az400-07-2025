@@ -1,0 +1,51 @@
+# Make sure that <Project> Build Service (Organization) has access to the feed
+# By default, the build service has read access to the feed.
+# This should be Contribtor access to the feed. (Add Package)
+
+trigger:
+- master
+name: 1.0.$(Rev:r)
+pool: default
+
+variables:
+  Major: '1'
+  Minor: '0'
+  Patch: '0'
+
+stages:
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Job'
+        variables:
+          solution: '**/ACME.Business.Interfaces.csproj'
+          testProjects: '**/*[Tt]ests*/*.csproj'
+          buildPlatform: 'Any CPU'
+          buildConfiguration: 'Release'
+        steps:          
+        - template: ACME-Template-Build.yaml
+  - stage: Production
+    dependsOn: Build
+    displayName: 'Deploy to Feed'
+    jobs:
+      - job: PackageJob
+        displayName: 'Package Job'
+        steps:
+        - checkout: none
+        - download: current
+          artifact: drop
+        - task: NuGetCommand@2
+          displayName: 'NuGet push'
+          inputs:
+            command: push
+            packagesToPush: '$(Pipeline.Workspace)/drop/ACME.Business.Interfaces.*.nupkg'
+            publishVstsFeed: 'ACME-Layered/ACME-Feet'
+            allowPackageConflicts: true
+            Major: '$(Major)'
+            Minor: '$(Minor)'
+            Patch: '$(Rev:r)'
+
+
+          
+      

@@ -1,0 +1,15 @@
+trigger : none
+
+pool:
+  name: Default
+  
+resources:
+  pipelines:
+    - pipeline: 9b-PipelineCompletion
+      source: 9a-Starter
+      trigger: true
+
+jobs:
+  - job: hello
+    steps:
+      - script: echo And now completing things

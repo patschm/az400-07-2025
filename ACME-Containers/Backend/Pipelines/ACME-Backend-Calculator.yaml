@@ -1,0 +1,44 @@
+trigger:
+- main
+
+pool: 'default'
+ 
+variables:
+  - group: 'ContainerInfo'
+  - name: dockerfilePath
+    value: '$(Build.SourcesDirectory)/Backend/ACME.Backend.AddService/Dockerfile'
+  - name: tag
+    value: '$(Build.BuildId)'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: $(RepoLink)
+    - task: Docker@2
+      displayName: Build the container image
+      inputs:
+        command: build
+        buildContext: $(Build.SourcesDirectory)/Backend
+        dockerfile: $(dockerfilePath)
+        repository: ACME.Backend.Calculator
+        containerRegistry: $(RepoLink)
+        tags: |
+          $(tag)
+    - task: Docker@2
+      displayName: Push an image to container registry
+      inputs:
+        command: push
+        containerRegistry: $(RepoLink)
+        repository: ACME.Backend.Calculator
+        tags: |
+          $(tag)
+          
+      

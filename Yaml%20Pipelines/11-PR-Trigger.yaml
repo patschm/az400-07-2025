@@ -1,0 +1,13 @@
+       
+pool:
+  name: Default
+
+pr: none  # Only supported in Github or BitBucket. Not in Azure DevOps Git
+# For DevOps use this script in branch policies
+trigger: none
+      
+jobs:
+  - job: PRTrigger
+    displayName: 'PR Trigger Job' 
+    steps:
+      - script: echo $(Build.SourceBranchName) branch is building. Triggered by PR

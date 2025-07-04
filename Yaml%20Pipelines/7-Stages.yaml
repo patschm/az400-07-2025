@@ -1,0 +1,36 @@
+trigger : none
+
+pool:
+  name: Default
+
+stages:
+  - stage: Stage1
+    jobs:
+      - job: echo
+        steps:
+          - script: echo Stage 1
+  - stage: Stage2
+    dependsOn: Stage1
+    jobs:
+      - job: echo
+        steps:
+          - script: echo Stage 2
+  - stage: Stage3
+    dependsOn: Stage1
+    jobs:
+      - job: echo
+        steps:
+          - script: echo Stage 3
+  - stage: Stage4
+    pool: Default
+    dependsOn: 
+      - Stage2
+      - Stage3
+    jobs:
+      - job: echo
+        steps:
+          - script: echo Stage 4
+  - template: 7a-SubStage.yaml
+    parameters:
+      depends: Stage4
+    

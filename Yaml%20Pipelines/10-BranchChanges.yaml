@@ -1,0 +1,14 @@
+       
+pool:
+  name: Default
+
+trigger: 
+  branches:
+    include:
+      - master
+      - feature/*
+      
+jobs:
+  - job: hello
+    steps:
+      - script: echo $(Build.SourceBranchName) branch is building

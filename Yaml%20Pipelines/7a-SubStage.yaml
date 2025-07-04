@@ -1,0 +1,11 @@
+parameters:
+  - name: depends
+    type: string
+
+stages:
+  - stage: Stage5
+    dependsOn: ${{parameters.depends}}
+    jobs:
+      - job: job1
+        steps:
+          - script: echo Stage 5

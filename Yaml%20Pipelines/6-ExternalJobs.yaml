@@ -1,0 +1,17 @@
+trigger : none
+
+pool:
+  name: Default
+
+jobs:
+  - template: job-add.yaml
+    parameters:
+      a: 10
+      b: 20
+  - job: showSum
+    dependsOn: job1  # defined in job-add.yaml
+    variables:
+      sum: $[ dependencies.job1.outputs['setSum.sum'] ]
+    steps:
+      - script: echo $(sum)
+        name: showSum

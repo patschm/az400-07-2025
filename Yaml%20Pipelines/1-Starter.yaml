@@ -1,0 +1,11 @@
+trigger : none
+
+pool:
+  name: Default
+  demands:
+    - Agent.Name -equals Bob
+
+jobs:
+  - job: hello
+    steps:
+      - script: echo "Hello World"

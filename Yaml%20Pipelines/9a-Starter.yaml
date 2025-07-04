@@ -1,0 +1,10 @@
+       
+pool:
+  name: Default
+
+trigger: none
+      
+jobs:
+  - job: hello
+    steps:
+      - script: echo Begin Starter Pipeline

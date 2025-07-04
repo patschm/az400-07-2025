@@ -1,0 +1,72 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+# name of the deployment
+  name: calculator-api
+  labels:
+  # labels uniquely identify the deployment. 
+  # The key names are arbitrary but "app" and "tier" are commonly used.
+  # you can add as many as you like
+    app: calculator-api
+    tier: backend
+spec:
+  selector:
+  # selector tells the deployment which pods to talk to (defined in template)
+  # It correlates the deployment with the pod
+    matchLabels: # labels defined in the pod
+      app: calculator-api-pod
+      tier: backend
+  template:
+  # The template describes the pod that is launched. The pod too has labels
+  # This is the same as if you define a Pod like this:
+  # apiVersion: v1
+  # kind: Pod
+  # metadata: 
+  #   name: ...
+  #   labels: ...
+    metadata:
+      labels:
+        app: calculator-api-pod
+        tier: backend
+    spec:
+#      replicas: 2
+      containers:
+      - name: calculator-api
+        image: psrepo.azurecr.io/backend:#{nummer}#   # Using latest is generally discouraged
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+---
+# Internal service
+#apiVersion: v1
+#kind: Service
+#metadata: 
+#    name: calcapi
+#spec:
+#    type: ClusterIP
+#    selector:
+#        app: calculator-api-pod
+#        tier: backend
+#    ports:
+#    - name: http
+#      protocol: TCP
+#      port: 80
+#      targetPort: http
+      
+# Publicly available service
+apiVersion: v1
+kind: Service
+metadata:
+  name: calcapi 
+spec:
+  type: LoadBalancer
+  selector:
+    app: calculator-api-pod
+    tier: backend
+  ports:
+  - name: http
+    port: 80

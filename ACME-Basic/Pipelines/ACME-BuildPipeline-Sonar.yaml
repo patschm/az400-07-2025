@@ -1,0 +1,83 @@
+trigger:
+- master
+
+pool: default
+ 
+variables:
+  solution: '**/*.sln'
+  testProjects: '**/*[Tt]ests*/*.csproj'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet Packages'
+  inputs:
+    command: 'restore'
+    projects: '$(solution)'
+    feedsToUse: 'select'
+    includeNuGetOrg: true
+    verbosityRestore: 'Detailed'
+    verbosityPack: 'Detailed'
+    
+- task: SonarCloudPrepare@3
+  displayName: 'Prepare SonarQube Analysis'
+  inputs:
+    SonarQube: 'SonarCube'
+    organization: 'acme-2025'
+    scannerMode: 'dotnet'
+    projectKey: 'ACME-2025_ACME-Basic'
+    projectName: 'ACME-Basic'  
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build Solution'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+    versioningScheme: 'byBuildNumber'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run Tests'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --no-build --logger trx'
+    publishTestResults: true
+    testRunTitle: 'ACME Build Pipeline Tests'
+
+- task: SonarCloudAnalyze@3
+  displayName: 'Run SonarQube Analysis'
+  inputs:
+    jdkversion: 'JAVA_HOME'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Application'  
+  inputs:
+    command: 'publish'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build'
+    publishWebProjects: false
+    zipAfterPublish: true
+
+- task: SonarCloudPublish@3
+  displayName: 'Publish SonarQube Analysis Results'
+  inputs:
+    pollingTimeoutSec: '300'  
+
+- task: CopyFiles@2
+  displayName: 'Copy BICEP templates'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**/*.bicep'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    
+  
+
+  
+

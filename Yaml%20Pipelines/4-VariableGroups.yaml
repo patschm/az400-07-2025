@@ -1,0 +1,18 @@
+trigger : none
+
+pool:
+  name: Default
+
+# You define the variable group in the Library in Azure DevOps
+variables:
+  - group: "4-Demo-Group"
+
+jobs:
+  - job: Variables
+    steps:
+    - script: |
+        echo My name is $(First) $(Last)
+        echo My secret is $(Secret)
+        echo My secret is %GEHEIM%
+      env:
+        GEHEIM: $(Secret)

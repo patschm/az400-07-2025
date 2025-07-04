@@ -1,0 +1,22 @@
+parameters:
+  - name: serviceLink
+    type: string
+  - name: slotName
+    type: string
+    default: 'Development'
+
+steps:
+- checkout: none
+- download: current
+  artifact: drop
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure Web App'
+  inputs:
+    azureSubscription: ${{ parameters.serviceLink }}
+    appType: 'webApp'
+    appName: $(AppName)
+    package: '$(Pipeline.Workspace)/drop/*.zip' 
+    deploymentMethod: 'auto'
+    resourceGroupName: $(Group)
+    runtimeStack: 'DOTNETCORE|8.0'
+    slotName: ${{ parameters.slotName }}

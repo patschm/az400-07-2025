@@ -1,0 +1,41 @@
+steps:          
+- task: UseDotNet@2
+  displayName: 'Install .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet Packages'
+  inputs:
+    command: 'restore'
+    projects: $(solution)
+    feedsToUse: 'select'
+    includeNuGetOrg: true
+- task: DotNetCoreCLI@2
+  displayName: 'Build Solution'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+    versioningScheme: 'byBuildNumber'
+- task: DotNetCoreCLI@2
+  displayName: 'Run Tests'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --no-build --logger trx'
+    publishTestResults: true
+    testRunTitle: 'ACME Build Pipeline Tests'
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: pack
+    verbosityRestore: Detailed
+    packagesToPack: $(solution)
+    versioningScheme: byBuildNumber
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'

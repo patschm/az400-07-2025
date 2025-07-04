@@ -1,0 +1,28 @@
+﻿@inject IConfiguration Configuration;
+@model CalculatorModel;
+@addTagHelper *, Microsoft.FeatureManagement.AspNetCore
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>The ACME Calculator</title>
+</head>
+<body style="background-color:@Configuration["BackColor"]">
+    <header>
+        <h1>The ACME Calculator</h1>
+    </header>
+    <section>
+        <form method="post">
+            <label>A</label><input type="number" name="@nameof(Model.A)" value="@Model.A" /><br />
+            <label>B</label><input type="number" name="@nameof(Model.B)" value="@Model.B" /><br />
+            <button type="submit" asp-action="Add">Add</button>
+            <feature name="subtract">
+                <br />
+                <button type="submit" asp-action="Subtract">Subtract</button>
+            </feature>
+            <hr />
+            <h1>@Model.Result</h1>
+        </form>
+    </section>
+</body>
+</html>

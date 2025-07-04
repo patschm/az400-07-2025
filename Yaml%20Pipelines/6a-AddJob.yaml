@@ -1,0 +1,16 @@
+parameters:
+  - name: a 
+    type: number
+    default: 5
+  - name: b
+    type: number
+    default: 10
+jobs:
+  - job: job1
+    steps:
+      - script: |
+          echo Adding numbers: ${{parameters.a}} and ${{parameters.b}}
+          set /a c=${{parameters.a}}+${{parameters.b}}
+          echo %c%
+          echo ##vso[task.setvariable variable=sum;isOutput=true]%c%
+        name: setSum

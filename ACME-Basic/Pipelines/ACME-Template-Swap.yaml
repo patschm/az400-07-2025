@@ -1,0 +1,23 @@
+parameters:
+  - name: serviceLink
+    type: string
+  - name: sourceSlot
+    type: string
+  - name: targetSlot
+    type: string
+
+
+steps:
+- checkout: none
+- download: none
+  artifact: drop
+- task: AzureAppServiceManage@0
+  displayName: 'Swap Slots'
+  inputs:
+    azureSubscription: ${{ parameters.serviceLink }}
+    Action: 'Swap Slots'
+    WebAppName: $(AppName)
+    ResourceGroupName: $(Group)
+    SwapWithProduction: false
+    SourceSlot: ${{ parameters.sourceSlot }}
+    TargetSlot: ${{ parameters.targetSlot }}

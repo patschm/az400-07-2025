@@ -1,0 +1,19 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>The ACME Calculator</title>
+</head>
+<body>
+    <header>
+        <h1>The ACME Calculator</h1>
+    </header>
+    <section>
+        <form asp-action="Add">
+            <label>A</label><input type="number" name="@nameof(Model.A)" value="@Model.A" /><br />
+            <label>B</label><input type="number" name="@nameof(Model.B)" value="@Model.B" /><br />
+            <button type="submit">Add</button>
+            <hr />
+            <h1>@Model.Result</h1>
+        </form>
+    </section>
+</body>
+</html>

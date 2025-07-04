@@ -1,0 +1,57 @@
+pool: default
+
+variables:
+  - group: 'ACME-Basic'
+  - name: serviceLink
+    value: 'Private Azure'
+
+resources:
+  pipelines:
+    - pipeline: BuildPipeline
+      source: ACME-BuildPipeline
+      trigger: true
+    
+stages:
+  - stage: CreateResources
+    displayName: 'Create Resources Stage'
+    jobs:
+    - job: CreateResourcesJob
+      displayName: 'Create Resources Job'
+      steps:
+      - checkout: none
+      - download: current
+        artifact: drop
+      - task: AzureCLI@2
+        displayName: 'Create Resource Group'
+        inputs:
+          azureSubscription: $(serviceLink)
+          scriptType: 'batch'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az group create --name $(Group) --location $(Region)
+      - task: AzureResourceManagerTemplateDeployment@3
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: $(serviceLink)
+          action: 'Create Or Update Resource Group'
+          resourceGroupName: $(Group)
+          location: $(Region)
+          templateLocation: 'Linked artifact'
+          csmFile: '$(Pipeline.Workspace)/drop/Biceps/webapp-basic.bicep'
+          overrideParameters: '-app_name $(AppName)'
+          deploymentMode: 'Incremental'
+    - job: DeployJob
+      steps:
+      - checkout: none
+      - download: current
+        artifact: drop
+      - task: AzureWebApp@1
+        displayName: 'Deploy to Azure Web App'
+        inputs:
+          azureSubscription: $(serviceLink)
+          appType: 'webApp'
+          appName: $(AppName)
+          package: '$(Pipeline.Workspace)/drop/*.zip' 
+          deploymentMethod: 'auto'
+          resourceGroupName: $(Group)
+          runtimeStack: 'DOTNETCORE|8.0'

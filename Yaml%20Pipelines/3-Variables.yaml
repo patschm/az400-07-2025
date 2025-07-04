@@ -1,0 +1,17 @@
+trigger : none
+
+pool:
+  name: Default
+
+variables:
+  a: 3
+  b: 4
+  areEqual: $[eq(variables['a'], variables['b'])]
+
+jobs:
+  - job: add
+    steps:
+      - script: |
+          set /a sum=$(a)+${{variables.b}}
+          echo 'The sum of $(a) and $(b) is %sum%'
+          echo 'Are a and b equal? $(areEqual)'

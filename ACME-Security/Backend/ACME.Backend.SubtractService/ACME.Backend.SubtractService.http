@@ -1,0 +1,6 @@
+@ACME.Backend.AddService_HostAddress = http://localhost:5121
+
+GET {{ACME.Backend.AddService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

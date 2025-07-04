@@ -1,0 +1,17 @@
+trigger : none
+
+pool:
+  name: Default
+
+jobs:
+  - job: Variables
+    steps:
+    - script: |
+        echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory): The local path on the agent where any artifacts are copied to before being pushed to their destination.
+        echo Build.BuildId: $(Build.BuildId): The ID of the build.
+        echo Build.DefinitionName: $(Build.DefinitionName): The name of the build definition.
+        echo Build.BuildNumber: $(Build.BuildNumber): The name of the completed build.
+        echo Build.Repository.LocalPath: $(Build.Repository.LocalPath): The local path on the agent where the source code is downloaded.
+        echo Build.SourcesDirectory: $(Build.SourcesDirectory): The local path on the agent where the source code is downloaded.
+        echo Build.SourceVersion: $(Build.SourceVersion): The source version of the build.
+        echo Build.StagingDirectory: $(Build.StagingDirectory): The local path on the agent where the build is staged.

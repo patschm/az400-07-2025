@@ -1,0 +1,19 @@
+trigger : none
+
+pool:
+  name: Default
+
+parameters:
+  - name: yourName
+    type: string
+    default: 'World'
+    displayName: 'Put your name here'
+    #values:
+    #  - World
+    #  - Azure
+
+jobs:
+  - job: hello
+    steps:
+      - script: echo 'Hello ${{parameters.yourName}}'
+        displayName: 'Echo your name' 

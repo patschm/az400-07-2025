@@ -1,0 +1,19 @@
+trigger: none
+
+pool: default
+jobs:
+ - job: CreateResourcesJob
+   displayName: 'Create Resources Job'
+   steps:
+    - checkout: none
+    - task: AzureCLI@2
+      displayName: 'Create Resource Group'
+      inputs:
+        azureSubscription: 'Private Azure'
+        scriptType: 'batch'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            az group create -n TestGroep2 -l westeurope
+            az appservice plan create -n machine-plan2 -g TestGroep2 --sku S1
+            az webapp create -n ps-webding-43 -p machine-plan2 -g TestGroep2
+        displayName: Create Resources  
